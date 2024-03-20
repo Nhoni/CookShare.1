@@ -20,30 +20,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
-    #[Assert\Email(message: 'The email is not valid')]
-    #[Assert\Length(min: 2, max: 180)]
-    private ?string $email = null;
-
-    /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
-    #[Assert\NotNull]
-    private array $roles = [];
-
-
-    private ?string $plainPassword = null;
-
-    /**
-     * @var string The hashed password
-     */
-    #[ORM\Column]
-    #[Assert\NotBlank]
-    private ?string $password = null;
-
-    #[ORM\Column(length: 50)]
-    #[Assert\NotBlank]
+    #[ORM\Column(type: 'string' ,length: 50)]
+    #[Assert\NotBlank()]
     #[Assert\Length(min: 2, max: 50)]
     private ?string $fullName = null;
 
@@ -51,9 +29,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min:2, max: 50)]
     private ?string $pseudo = null;
 
-    #[ORM\Column]
-    #[Assert\NotNull]
-    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(type: 'string' ,length: 180 ,unique:true )]
+    #[Assert\Email(message: 'The email is not valid')]
+    #[Assert\Length(min: 2, max: 180)]
+    private ?string $email = null;
+
+    #[ORM\Column(type: 'json')]
+    #[Assert\NotNull()]
+    private array $roles = [];
+
+
+    private ?string $plainPassword = null;
+
+    
+    #[ORM\Column(type: 'string')]
+    #[Assert\NotBlank()]
+    private ?string $password = 'password';
+
+    #[ORM\Column(type:'datetime_immutable')]
+    #[Assert\NotNull()]
+    private ?\DateTimeImmutable $createdAt;
 
     public function __construct()
     {
