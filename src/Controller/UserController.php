@@ -58,25 +58,38 @@ class UserController extends AbstractController
     }
 
     #[Route('/utilisateur/edition-mot-de-passe/{id}', 'user.edit.password', methods: ['GET', 'POST'])]
-    public function editPassword(User $user,Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $manager): Response {
+    public function editPassword(
+        User $user,
+        Request $request, 
+        EntityManagerInterface $manager,
+        UserPasswordHasherInterface $hasher
+        ): Response {
+
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('security.login');
+        }
+
+        if($this->getUser() !== $user) {
+            return $this->redirectToRoute('recipe.index');
+        }
 
         $form = $this->createForm(UserPasswordType::class);
 
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()) {
-            if($hasher->isPasswordValid($user, $form->getData()['plainPassword']))
-            {
-                $user->setPassword(
-                $hasher->hashPassword(
-                    $user,
+            if($hasher->isPasswordValid($user, $form->getData()['plainPassword'])){
+                $user->setUpdatedAt(new \DateTimeImmutable());
+                $user->setPlainPassword(
                     $form->getData()['newPassword']
-                )
-            );
+                );
 
                 $this->addFlash(
                     'success', 
                     'Votre mot de passe a bien été mis à jour'
                 );
+
+                $manager->persist($user);
+                $manager->flush();
 
                 return $this->redirectToRoute('recipe.index');
 
